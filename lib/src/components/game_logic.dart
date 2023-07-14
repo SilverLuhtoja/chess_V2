@@ -254,8 +254,6 @@ bool isKingInCheck(bool isWhiteKing, List<List<ChessPiece?>> board) {
   List<int> blackKingPosition = getKingPosition(!isWhiteKing, board);
   List<int> kingPosition = isWhiteKing ? whiteKingPosition : blackKingPosition;
 
-
-
   // check if any enemy piece can attack the king
   for (int i = 0; i < 8; i++) {
     for (int j = 0; j < 8; j++) {

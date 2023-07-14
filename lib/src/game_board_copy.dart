@@ -21,15 +21,10 @@ class GameScreen extends ConsumerWidget {
     late PieceStateNotifier pieceProvider = ref.read(pieceStateProvider.notifier);
     late PieceState pieceState = ref.watch(pieceStateProvider);
 
-    // ChessPiece? selectedPiece;
-    // int selectedCol = -1;
-    // int selectedRow = -1;
-    // List<List<int>> validMoves = [];
     ChessPiece? selectedPiece = pieceState.selectedPiece;
     int selectedRow = pieceState.clickedSquare[0];
     int selectedCol = pieceState.clickedSquare[1];
     List<List<int>> validMoves = pieceState.validMoves;
-    // bool isWhiteTurn = true;
     bool isWhiteTurn = state.isWhiteTurn;
 
     List<int> whiteKingPosition = [7, 4];
@@ -56,16 +51,6 @@ class GameScreen extends ConsumerWidget {
       } else {
         checkStatus = false;
       }
-
-      //clear selection
-      // selectedPiece = null;
-      // selectedRow = -1;
-      // selectedCol = -1;
-      // validMoves = [];
-      //==========================
-      // pieceProvider.setClickedPiece([-1,-1], null);
-      // pieceProvider.setValidMoves([]);
-      // pieceProvider.clearPieceState();
 
       if (isCheckMate(!isWhiteTurn, board)) {
         showDialog(
@@ -141,71 +126,45 @@ class GameScreen extends ConsumerWidget {
             Container(
                 margin: const EdgeInsets.only(top: 100), child: Text(checkStatus ? "CHECK" : "")),
             Expanded(
-              child: GridView.builder(
-                itemCount: 8 * 8,
-                physics: const NeverScrollableScrollPhysics(),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 8),
-                itemBuilder: (context, index) {
-                  int row = index ~/ 8;
-                  int col = index % 8;
-                  bool isSelected = false;
-                  bool ableToAct = state.myColor == (isWhiteTurn == true ? 'white' : 'black') &&
-                      state.waitingPlayer == false;
-                  // bool isSelected = selectedRow == row && selectedCol == col;
+                child: GridView.builder(
+                    itemCount: 8 * 8,
+                    physics: const NeverScrollableScrollPhysics(),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 8),
+                    itemBuilder: (context, index) {
+                      int row = index ~/ 8;
+                      int col = index % 8;
+                      bool isSelected = false;
+                      bool ableToAct = state.myColor == (isWhiteTurn == true ? 'white' : 'black') &&
+                          state.waitingPlayer == false;
+                      // bool isSelected = selectedRow == row && selectedCol == col;
 
-                  if (pieceState.clickedSquare.isNotEmpty) {
-                    isSelected =
-                        pieceState.clickedSquare[0] == row && pieceState.clickedSquare[1] == col;
-                  }
+                      if (pieceState.clickedSquare.isNotEmpty) {
+                        isSelected = pieceState.clickedSquare[0] == row &&
+                            pieceState.clickedSquare[1] == col;
+                      }
 
-                  bool isValidMove = false;
-                  // for (var position in validMoves) {
-                  for (var position in validMoves) {
-                    if (position[0] == row && position[1] == col) {
-                      isValidMove = true;
-                    }
-                  }
+                      bool isValidMove = false;
+                      // for (var position in validMoves) {
+                      for (var position in validMoves) {
+                        if (position[0] == row && position[1] == col) {
+                          isValidMove = true;
+                        }
+                      }
 
-                  return Square(
-                    isWhite: isWhite(index),
-                    piece: board[row][col],
-                    isSelected: isSelected,
-                    isValidMove: isValidMove,
-                    // onTap: () => pieceSelected(row, col),
-                    onTap: () => ableToAct ? pieceSelected(row, col) : null,
-                    // onTap: () => print("$row $col"),
-                  );
-                },
-              ),
-            ),
+                      return Square(
+                        isWhite: isWhite(index),
+                        piece: board[row][col],
+                        isSelected: isSelected,
+                        isValidMove: isValidMove,
+                        // onTap: () => pieceSelected(row, col),
+                        onTap: () => ableToAct ? pieceSelected(row, col) : null,
+                        // onTap: () => print("$row $col"),
+                      );
+                    })),
           ],
         ),
       ),
     );
   }
-
-// void pieceSelected(int row, int col) {
-//   var selectedSquare = board[row][col];
-//   // no piece selected yet
-//   if (selectedSquare != null && selectedPiece == null) {
-//     if (selectedSquare.isWhite == isWhiteTurn) {
-//       selectedPiece = selectedSquare;
-//       selectedRow = row;
-//       selectedCol = col;
-//     }
-//
-//     // there is piece selected, but user can select another one of their pieces
-//   } else if (selectedSquare != null && selectedSquare.isWhite == selectedPiece!.isWhite) {
-//     selectedPiece = selectedSquare;
-//     selectedRow = row;
-//     selectedCol = col;
-//
-//     // if there is a piece selected annd user taps on a square that is valid move
-//   } else if (selectedPiece != null && validMoves.any((e) => e[0] == row && e[1] == col)) {
-//     movePiece(row, col);
-//   }
-//
-//   // if a piece is selected, calculate its valid moves
-//   validMoves = calculateRealValidMoves(selectedRow, selectedCol, selectedPiece, true, board);
-// }
 }
