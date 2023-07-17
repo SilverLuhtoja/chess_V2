@@ -14,6 +14,11 @@ List<List<ChessPiece?>> initializeBoard() {
     newBoard[6][i] = ChessPiece(type: ChessPieceType.pawn, isWhite: true);
   }
 
+  // newBoard[4][2] = ChessPiece(type: ChessPieceType.bishop, isWhite: true);
+  // newBoard[3][7] = ChessPiece(type: ChessPieceType.queen, isWhite: true);
+  newBoard[3][2] = ChessPiece(type: ChessPieceType.bishop, isWhite: false);
+  newBoard[4][7] = ChessPiece(type: ChessPieceType.queen, isWhite: false);
+
   //rooks
   newBoard[0][0] = ChessPiece(type: ChessPieceType.rook, isWhite: false);
   newBoard[0][7] = ChessPiece(type: ChessPieceType.rook, isWhite: false);
@@ -230,7 +235,7 @@ List<List<int>> calculateRawValidMoves(
 List<List<int>> calculateRealValidMoves(
     int row, int col, ChessPiece? piece, bool checkSimulation, List<List<ChessPiece?>> board) {
   List<List<int>> realValidMoves = [];
-  List<List<int>> candidatedMoves = calculateRawValidMoves(row, col, piece,board);
+  List<List<int>> candidatedMoves = calculateRawValidMoves(row, col, piece, board);
 
   // filter out all king check
   if (checkSimulation) {
@@ -248,10 +253,9 @@ List<List<int>> calculateRealValidMoves(
   return realValidMoves;
 }
 
-
 bool isKingInCheck(bool isWhiteKing, List<List<ChessPiece?>> board) {
-  List<int> whiteKingPosition = getKingPosition(isWhiteKing, board);
-  List<int> blackKingPosition = getKingPosition(!isWhiteKing, board);
+  List<int> whiteKingPosition = getWhiteKingPos(board);
+  List<int> blackKingPosition = getBlackKingPos(board);
   List<int> kingPosition = isWhiteKing ? whiteKingPosition : blackKingPosition;
 
   // check if any enemy piece can attack the king
@@ -272,7 +276,7 @@ bool isKingInCheck(bool isWhiteKing, List<List<ChessPiece?>> board) {
 }
 
 bool isCheckMate(bool isWhiteKing, List<List<ChessPiece?>> board) {
-  if (!isKingInCheck(isWhiteKing,board)) return false;
+  if (!isKingInCheck(isWhiteKing, board)) return false;
 
   for (int i = 0; i < 8; i++) {
     for (int j = 0; j < 8; j++) {
@@ -290,8 +294,8 @@ bool isCheckMate(bool isWhiteKing, List<List<ChessPiece?>> board) {
 
 bool simulatedMoveIsSafe(ChessPiece piece, int startRow, int startCol, int endRow, int endCol,
     List<List<ChessPiece?>> board) {
-  List<int> whiteKingPosition = getKingPosition(piece.isWhite, board);
-  List<int> blackKingPosition = getKingPosition(!piece.isWhite, board);
+  List<int> whiteKingPosition = getWhiteKingPos(board);
+  List<int> blackKingPosition = getBlackKingPos(board);
   ChessPiece? originalDestinationPiece = board[endRow][endCol];
 
   List<int>? originalKingPosition;
@@ -324,15 +328,25 @@ bool simulatedMoveIsSafe(ChessPiece piece, int startRow, int startCol, int endRo
   return !kingInCheck; //if king check == true, then its not safe
 }
 
-List<int> getKingPosition(bool isWhiteKing, List<List<ChessPiece?>> board) {
+List<int> getWhiteKingPos(List<List<ChessPiece?>> board) {
   List<int> kingPos = [];
   for (int i = 0; i < 8; i++) {
     for (int j = 0; j < 8; j++) {
       var square = board[i][j];
-      if (square != null && square.isWhite == isWhiteKing && square.type == ChessPieceType.king) {
+      if (square != null && square.isWhite == true && square.type == ChessPieceType.king) {
         kingPos = [i, j];
       }
-      if (square != null && square.isWhite != isWhiteKing && square.type == ChessPieceType.king) {
+    }
+  }
+  return kingPos;
+}
+
+List<int> getBlackKingPos(List<List<ChessPiece?>> board) {
+  List<int> kingPos = [];
+  for (int i = 0; i < 8; i++) {
+    for (int j = 0; j < 8; j++) {
+      var square = board[i][j];
+      if (square != null && square.isWhite == false && square.type == ChessPieceType.king) {
         kingPos = [i, j];
       }
     }
