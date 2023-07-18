@@ -76,40 +76,13 @@ class Database {
     await table.update(payload).eq('game_id', id);
   }
 
-  // Future<void> updateGamePieces(GameBoard board, String otherPlayerTurnColor) async {
-  //   printDB("DB: UPDATEING GAMEPIECES");
-  //
-  //   // TODO: currently only gamePieces are mapped, not GameBoard Object(change ??)
-  //   final jsonPieces = jsonEncode(board.toJson());
-  //
-  //   Map<String, dynamic> updateParams = {
-  //     "db_game_board": jsonPieces,
-  //     "current_turn": otherPlayerTurnColor
-  //   };
-  //
-  //   await table.update(updateParams).eq('game_id', id);
-  // }
-
-  // TODO: Should we delete some data?
-  Future<void> deleteOrUpdateRoom(String? myColor) async {
-    Map<String, dynamic> data = await table.select().eq('game_id', id).single();
-    printDB("DB: deleteOrUpdateRoom > data : $data");
-    Map<String, dynamic> updateParams = {};
-    if (myColor != null) {
-      updateParams = {
-        myColor: null,
-        "game_state": DbGameState.GAMEOVER.name,
-      };
-    }
-    printDB("DB: deleteOrUpdateRoom > updateParams : $updateParams");
-
-    await table.update(updateParams).eq('game_id', id);
+  Future<void> leaveRoom(String? myColor) async {
+    await table.update({myColor: null, "game_state": DbGameState.GAMEOVER.name}).eq('game_id', id);
   }
 
   Future<List<dynamic>> getAvailableRooms() async {
     List<dynamic> rooms = await table.select('*').eq('game_state', DbGameState.WAITING.name);
 
-    // printDB("DB: available rooms > $rooms");
     return rooms;
   }
 
@@ -121,30 +94,3 @@ class Database {
     Map<String, dynamic> json = await table.select('*').eq('game_id', id).single();
     return json['white'] == null ? 'white' : 'black';
   }
-
-// //  FOR TESTING
-// Future<void> resetPieces() async {
-//   GameBoard board = GameBoard();
-//   Pawn pawn = Pawn(notationValue: 'e7', color: PieceColor.black);
-//   Pawn pawn2 = Pawn(notationValue: 'd2', color: PieceColor.white);
-//   board.setGamePieces({'e7': pawn, 'd2': pawn2});
-//   final jsonPieces = jsonEncode(board.toJson());
-//   printDB("DB: $jsonPieces");
-//   await table.update({"db_game_board": jsonPieces}).eq('game_id', id);
-// }
-//   subscribeToChannel() {
-//     client.channel('GAMEROOMS').on(
-//       RealtimeListenTypes.postgresChanges,
-//       ChannelFilter(event: '*', schema: 'public'),
-//       (payload, [ref]) {
-//         print('Change received: ${payload.toString()}');
-//       },
-//     ).subscribe();
-//   }
-//
-//   void removeAllSubriptions() {
-//     printDB("DB: removing subs");
-//     client.removeAllChannels();
-//     printDB("All channels : ${client.getChannels()}");
-//   }
-}

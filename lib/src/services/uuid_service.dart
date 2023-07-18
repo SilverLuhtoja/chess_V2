@@ -5,7 +5,8 @@ import '../helper/helper_methods.dart';
 Future<String?> getUUID() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   // await prefs.remove("client_uuid");
-  if (prefs.getString("client_uuid") == null) {
+  String? existingUUID = prefs.getString("client_uuid");
+  if (existingUUID == null) {
     String uuid = const Uuid().v1();
     prefs.setString("client_uuid", uuid);
     printGreen("UUID CREATED: Prefs_UUID: $uuid");

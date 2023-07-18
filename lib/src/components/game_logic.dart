@@ -254,9 +254,10 @@ List<List<int>> calculateRealValidMoves(
 }
 
 bool isKingInCheck(bool isWhiteKing, List<List<ChessPiece?>> board) {
-  List<int> whiteKingPosition = getWhiteKingPos(board);
-  List<int> blackKingPosition = getBlackKingPos(board);
-  List<int> kingPosition = isWhiteKing ? whiteKingPosition : blackKingPosition;
+  // List<int> whiteKingPosition = getWhiteKingPos(board);
+  // List<int> blackKingPosition = getBlackKingPos(board);
+  // List<int> kingPosition = isWhiteKing ? whiteKingPosition : blackKingPosition;
+  List<int> kingPosition = getKingPos(isWhiteKing, board);
 
   // check if any enemy piece can attack the king
   for (int i = 0; i < 8; i++) {
@@ -294,8 +295,10 @@ bool isCheckMate(bool isWhiteKing, List<List<ChessPiece?>> board) {
 
 bool simulatedMoveIsSafe(ChessPiece piece, int startRow, int startCol, int endRow, int endCol,
     List<List<ChessPiece?>> board) {
-  List<int> whiteKingPosition = getWhiteKingPos(board);
-  List<int> blackKingPosition = getBlackKingPos(board);
+  // List<int> whiteKingPosition = getWhiteKingPos(board);
+  // List<int> blackKingPosition = getBlackKingPos(board);
+  List<int> whiteKingPosition = getKingPos(true,board);
+  List<int> blackKingPosition = getKingPos(false,board);;
   ChessPiece? originalDestinationPiece = board[endRow][endCol];
 
   List<int>? originalKingPosition;
@@ -328,12 +331,12 @@ bool simulatedMoveIsSafe(ChessPiece piece, int startRow, int startCol, int endRo
   return !kingInCheck; //if king check == true, then its not safe
 }
 
-List<int> getWhiteKingPos(List<List<ChessPiece?>> board) {
+List<int> getKingPos(bool forWhite, List<List<ChessPiece?>> board) {
   List<int> kingPos = [];
   for (int i = 0; i < 8; i++) {
     for (int j = 0; j < 8; j++) {
       var square = board[i][j];
-      if (square != null && square.isWhite == true && square.type == ChessPieceType.king) {
+      if (square != null && square.isWhite == forWhite && square.type == ChessPieceType.king) {
         kingPos = [i, j];
       }
     }
@@ -341,15 +344,28 @@ List<int> getWhiteKingPos(List<List<ChessPiece?>> board) {
   return kingPos;
 }
 
-List<int> getBlackKingPos(List<List<ChessPiece?>> board) {
-  List<int> kingPos = [];
-  for (int i = 0; i < 8; i++) {
-    for (int j = 0; j < 8; j++) {
-      var square = board[i][j];
-      if (square != null && square.isWhite == false && square.type == ChessPieceType.king) {
-        kingPos = [i, j];
-      }
-    }
-  }
-  return kingPos;
-}
+// List<int> getWhiteKingPos(List<List<ChessPiece?>> board) {
+//   List<int> kingPos = [];
+//   for (int i = 0; i < 8; i++) {
+//     for (int j = 0; j < 8; j++) {
+//       var square = board[i][j];
+//       if (square != null && square.isWhite == true && square.type == ChessPieceType.king) {
+//         kingPos = [i, j];
+//       }
+//     }
+//   }
+//   return kingPos;
+// }
+//
+// List<int> getBlackKingPos(List<List<ChessPiece?>> board) {
+//   List<int> kingPos = [];
+//   for (int i = 0; i < 8; i++) {
+//     for (int j = 0; j < 8; j++) {
+//       var square = board[i][j];
+//       if (square != null && square.isWhite == false && square.type == ChessPieceType.king) {
+//         kingPos = [i, j];
+//       }
+//     }
+//   }
+//   return kingPos;
+// }

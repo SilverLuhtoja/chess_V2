@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'button.dart';
-import 'game_board.dart';
-import 'new_game_button.dart';
+import 'widgets/new_game_button.dart';
 
 class MainMenuScreen extends StatefulWidget {
   const MainMenuScreen({super.key});
@@ -29,13 +27,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               SizedBox(width: 10, child: Text("C H E S S Y", style: style())),
-              NewGameButton(),
-              // Column(
-              //   mainAxisAlignment: MainAxisAlignment.center,
-              //   children: [
-              //     MenuButton(text: "New Game", handler: () => navigateTo(const NewGameButton())),
-              //   ],
-              // ),
+              const NewGameButton(),
             ],
           ),
         ),

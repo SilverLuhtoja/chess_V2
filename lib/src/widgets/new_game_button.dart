@@ -1,12 +1,10 @@
-import 'package:chess_v2/src/game_board_copy.dart';
+import 'package:chess_v2/src/game_screen.dart';
 import 'package:chess_v2/src/providers/game_state_provider.dart';
 import 'package:chess_v2/src/services/database_service.dart';
-import 'package:chess_v2/src/show_snackbar.dart';
+import 'package:chess_v2/src/widgets/error_snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-import 'game_board.dart';
-import 'helper/helper_methods.dart';
+import '../helper/helper_methods.dart';
 
 class NewGameButton extends ConsumerWidget {
   const NewGameButton({super.key});

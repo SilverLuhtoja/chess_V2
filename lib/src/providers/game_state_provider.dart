@@ -16,6 +16,7 @@ class GameState {
   late GameOverStatus? gameOverStatus;
   late bool isCheck;
   late String? myColor;
+  late List<String> moveHistory;
 
   GameState({
     required this.gameboard,
@@ -24,6 +25,7 @@ class GameState {
     required this.gameOverStatus,
     required this.myColor,
     required this.isCheck,
+    required this.moveHistory,
   });
 
   static GameState init() {
@@ -33,18 +35,20 @@ class GameState {
         waitingPlayer: true,
         gameOverStatus: null,
         myColor: null,
-        isCheck: false);
+        isCheck: false,
+        moveHistory: []);
   }
 
   static GameState copyWith(
-      {required List<List<ChessPiece?>> board, required bool turn, required String? color}) {
+      {required List<List<ChessPiece?>> board, required bool turn, required String? color, required List<String> history}) {
     return GameState(
         gameboard: board,
         isWhiteTurn: turn,
         waitingPlayer: true,
         gameOverStatus: null,
         myColor: color,
-        isCheck: false);
+        isCheck: false,
+        moveHistory: history);
   }
 }
 
@@ -86,11 +90,11 @@ class GameStateNotifier extends StateNotifier<GameState> {
       } else {
         bool isWhiteTurn = json['is_white_turn'];
 
-        dynamic convertedData = jsonDecode(json['db_game_board']);
+        dynamic conversionBoardData = jsonDecode(json['db_game_board']);
         List<List<ChessPiece?>> newBoard = [];
 
-        if (convertedData is List) {
-          newBoard = List<List<ChessPiece?>>.from(convertedData.map(
+        if (conversionBoardData is List) {
+          newBoard = List<List<ChessPiece?>>.from(conversionBoardData.map(
             (row) => List<ChessPiece?>.from(
               row.map(
                 (piece) =>
@@ -99,6 +103,9 @@ class GameStateNotifier extends StateNotifier<GameState> {
             ),
           ));
         }
+
+        dynamic conversionHistory = jsonDecode(json['move_history']);
+        List<String> moveHistory = List<String>.from(conversionHistory);
 
         bool isMyTurn = state.myColor == (isWhiteTurn == true ? 'white' : 'black');
         bool isKingChecked = false;
@@ -111,6 +118,7 @@ class GameStateNotifier extends StateNotifier<GameState> {
           gameOverStatus: state.gameOverStatus,
           myColor: state.myColor,
           isCheck: isKingChecked,
+          moveHistory: moveHistory,
         );
       }
     });
