@@ -51,7 +51,6 @@ class Database {
   }
 
   Future<String?> joinRoom() async {
-
     String? myUUID = await getUUID();
     List<dynamic> rooms = await getAvailableRooms();
     if (rooms.isEmpty) return null;
@@ -94,3 +93,4 @@ class Database {
     Map<String, dynamic> json = await table.select('*').eq('game_id', id).single();
     return json['white'] == null ? 'white' : 'black';
   }
+}
