@@ -16,7 +16,6 @@ class GameState {
   late GameOverStatus? gameOverStatus;
   late bool isCheck;
   late String? myColor;
-  late List<int> clickedPiece = [-1, -1];
 
   GameState({
     required this.gameboard,
@@ -37,7 +36,8 @@ class GameState {
         isCheck: false);
   }
 
-  static GameState copyWith({required List<List<ChessPiece?>> board, required bool turn, required String? color}) {
+  static GameState copyWith(
+      {required List<List<ChessPiece?>> board, required bool turn, required String? color}) {
     return GameState(
         gameboard: board,
         isWhiteTurn: turn,
@@ -62,10 +62,6 @@ class GameStateNotifier extends StateNotifier<GameState> {
     state.myColor = color;
   }
 
-  void setLastClickedPiece(List<int> piece) {
-    state.clickedPiece = piece;
-  }
-
   void setWaitingPlayer(bool value) {
     state.waitingPlayer = value;
   }
@@ -73,13 +69,6 @@ class GameStateNotifier extends StateNotifier<GameState> {
   void setIsCheck(bool value) {
     state.isCheck = value;
   }
-
-  // void setIsWhiteTurn(){
-  //   bool turn = !state.isWhiteTurn;
-  //   GameState newState = GameState.copyWith(board: state.gameboard, turn: turn, color: state.myColor);
-  //   state = newState;
-  // }
-
 
   void setGameOverStatus(GameOverStatus status) {
     state.gameOverStatus = status;
@@ -90,38 +79,39 @@ class GameStateNotifier extends StateNotifier<GameState> {
     _stream = db.createStream().listen((event) {
       final json = Map<String, dynamic>.from(event[0] as Map<Object?, Object?>);
       checkPlayerJoinEvent(json);
+      updateGameOverStatus(json);
 
       if (json['db_game_board'].toString().isEmpty) {
         printError('is null');
       } else {
-        // bool isWhiteTurn = json['current_turn'] == state.myColor ? true : false;
         bool isWhiteTurn = json['is_white_turn'];
 
-        // printState("JSON GAMEBOARD: ${json['db_game_board']}");
         dynamic convertedData = jsonDecode(json['db_game_board']);
         List<List<ChessPiece?>> newBoard = [];
 
         if (convertedData is List) {
           newBoard = List<List<ChessPiece?>>.from(convertedData.map(
-                (row) => List<ChessPiece?>.from(
+            (row) => List<ChessPiece?>.from(
               row.map(
-                    (piece) => piece != null
-                    ? ChessPiece.fromJson(Map<String, dynamic>.from(piece))
-                    : null,
+                (piece) =>
+                    piece != null ? ChessPiece.fromJson(Map<String, dynamic>.from(piece)) : null,
               ),
             ),
           ));
         }
 
-        // printState("convertedData: $newBoard");
+        bool isMyTurn = state.myColor == (isWhiteTurn == true ? 'white' : 'black');
+        bool isKingChecked = false;
+        if (isMyTurn && isKingInCheck(isWhiteTurn, newBoard)) isKingChecked = true;
 
         state = GameState(
-            gameboard: newBoard,
-            isWhiteTurn: isWhiteTurn,
-            waitingPlayer: state.waitingPlayer,
-            gameOverStatus: state.gameOverStatus,
-            myColor: state.myColor,
-            isCheck: state.isCheck);
+          gameboard: newBoard,
+          isWhiteTurn: isWhiteTurn,
+          waitingPlayer: state.waitingPlayer,
+          gameOverStatus: state.gameOverStatus,
+          myColor: state.myColor,
+          isCheck: isKingChecked,
+        );
       }
     });
   }
@@ -130,13 +120,27 @@ class GameStateNotifier extends StateNotifier<GameState> {
     if (json['white'] != null && json['black'] != null) setWaitingPlayer(false);
   }
 
+  void updateGameOverStatus(Map<String, dynamic> json) {
+    if (state.waitingPlayer == true) return;
+
+    if (json['winner'] != null) {
+      json['winner'] == state.myColor
+          ? setGameOverStatus(GameOverStatus.won)
+          : setGameOverStatus(GameOverStatus.lost);
+      return;
+    }
+    if (json['white'] == null || json['black'] == null) {
+      setGameOverStatus(GameOverStatus.surrendered);
+      return;
+    }
+  }
+
   closeStream() {
     printState("GAMESTATE: Stream closed!");
     _stream.cancel();
   }
 }
 
-final gameStateProvider =
-StateNotifierProvider<GameStateNotifier, GameState>((ref) {
+final gameStateProvider = StateNotifierProvider<GameStateNotifier, GameState>((ref) {
   return GameStateNotifier();
 });
