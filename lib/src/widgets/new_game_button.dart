@@ -23,8 +23,7 @@ class NewGameButton extends ConsumerWidget {
               printGreen("new_game_button: new game created");
               if (context.mounted) {
                 gameProvider.startStream();
-                // navigateTo(context, const GameBoard());
-                navigateTo(context, GameScreen());
+                navigateTo(context, const GameScreen());
               }
             } catch (e) {
               printError(e.toString());

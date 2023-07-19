@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'button.dart';
+import 'how_to_play_screen.dart';
 import 'widgets/new_game_button.dart';
 
 class MainMenuScreen extends StatefulWidget {
@@ -16,20 +18,25 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // db.removeAllSubriptions();
     return Scaffold(
       appBar: AppBar(
         title: const Text("MainMenu"),
       ),
       body: Center(
-        child: SingleChildScrollView(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              SizedBox(width: 10, child: Text("C H E S S Y", style: style())),
-              const NewGameButton(),
-            ],
-          ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            SizedBox(width: 10, child: Text("C H E S S Y", style: style())),
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const NewGameButton(),
+                const SizedBox(height: 20),
+                MenuButton(
+                    text: "How to PLay?", handler: () => navigateTo(const HowToPlayScreen())),
+              ],
+            )
+          ],
         ),
       ),
     );

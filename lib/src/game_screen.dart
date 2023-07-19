@@ -97,93 +97,56 @@ class GameScreen extends ConsumerWidget {
       child: Scaffold(
         appBar: AppBar(title: const Text("GAMESCREEN")),
         backgroundColor: backgroundColor,
-        body: Column(
-          children: [
-            Container(
-                margin: const EdgeInsets.only(top: 20),
-                child: Text("Waiting for player:  ${state.waitingPlayer}")),
-            Container(
-                margin: const EdgeInsets.only(top: 10),
-                child: Text("PLAYING AS : ${state.myColor}")),
-            Container(
-                margin: const EdgeInsets.only(top: 10),
-                child: Container(
-                    width: 60,
-                    height: 60,
-                    color: (state.myColor == (isWhiteTurn == true ? 'white' : 'black'))
-                        ? Colors.green
-                        : Colors.grey)),
-
-            Container(
-                margin: const EdgeInsets.symmetric(vertical: 10),
-                child: Text(
-                  state.isCheck ? "KING IN CHECK" : "",
-                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                )),
-            Container(
-                margin: const EdgeInsets.symmetric(vertical: 10),
-                child: Text(
-                  state.gameOverStatus != null ? state.gameOverStatus!.value : "",
-                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                )),
-            gameGrid(context, state, isWhiteTurn, pieceState, validMoves, board, pieceSelected),
-            buildHistory(context, state),
-            // TODO: Working solution
-            // state.waitingPlayer
-            //     ? WaitingView()
-            //     : state.gameOverStatus != null
-            //         ? GameOverView(status: state.gameOverStatus)
-            //         : gameGrid(context, state, isWhiteTurn, pieceState, validMoves, board, pieceSelected),,
-          ],
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              state.waitingPlayer
+                  ? const WaitingView()
+                  : state.gameOverStatus != null
+                      ? Center(child: GameOverView(status: state.gameOverStatus))
+                      : gameView(context, state, isWhiteTurn, pieceState, validMoves, board,
+                          pieceSelected),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget buildHistory(BuildContext context, GameState state) {
-    List<String> history = ["a2 -> a3", "a7 -> a5", "b2 -> b3"];
-
-    List<List<String>> rounds = history.fold<List<List<String>>>([], (result, move) {
-      if (result.isEmpty || result.last.length == 2) {
-        result.add([move]);
-      } else {
-        result.last.add(move);
-      }
-      return result;
-    });
-
-    return Container(
-      height: 100,
-      child: ListView.builder(
-        itemCount: rounds.length,
-        itemBuilder: (context, roundIndex) {
-          List<String> roundMoves = rounds[roundIndex];
-
-          return Row(
-            children: [
-              Text('Round ${roundIndex + 1}: '),
-              // for (final move in roundMoves) Text(" " + move),
-              roundMoves.length > 1
-                  ? Row(children: [
-                      Text(roundMoves[0], style: TextStyle(color: Colors.white)),
-                      Text(" , "),
-                      Text(roundMoves[1], style: TextStyle(color: Colors.black)),
-                    ])
-                  : Text(roundMoves[0], style: TextStyle(color: Colors.white))
-            ],
-          );
-        },
-      ),
+  Widget gameView(
+      BuildContext context,
+      GameState state,
+      bool isWhiteTurn,
+      PieceState pieceState,
+      List<List<int>> validMoves,
+      List<List<ChessPiece?>> board,
+      void Function(int row, int col) pieceSelected) {
+    return Column(
+      children: [
+        Container(
+            margin: const EdgeInsets.only(top: 20),
+            child: Text("Waiting for player:  ${state.waitingPlayer}")),
+        Container(
+            margin: const EdgeInsets.only(top: 10), child: Text("PLAYING AS : ${state.myColor}")),
+        Container(
+            margin: const EdgeInsets.only(top: 10),
+            child: Container(
+                width: 60,
+                height: 60,
+                color: (state.myColor == (isWhiteTurn == true ? 'white' : 'black'))
+                    ? Colors.green
+                    : Colors.grey)),
+        Container(
+            margin: const EdgeInsets.symmetric(vertical: 10),
+            child: Text(
+              state.isCheck ? "KING IN CHECK" : "",
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            )),
+        gameGrid(context, state, isWhiteTurn, pieceState, validMoves, board, pieceSelected),
+        buildHistory(context, state),
+      ],
     );
-
-    // return Expanded(
-    //           // child: Text("History: ${state.moveHistory}"));
-    //           child: Container(
-    //             // margin: const EdgeInsets.all( 20),
-    //             child: ListView.builder(itemCount: 2,itemBuilder: (context, index) =>
-    //                 Text("Okkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk")
-    //             ),
-    //           ));
   }
 
   Container gameGrid(
@@ -199,86 +162,114 @@ class GameScreen extends ConsumerWidget {
     return Container(
       width: gridSize,
       height: gridSize,
-      // height: 270,
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Container(width: padding), // Empty cell to align with the checkerboard
-              for (var i = 0; i < 8; i++)
-                Container(
-                  width: padding - 4,
+      margin: const EdgeInsets.only(bottom: 50),
+      child: Column(children: [
+        Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+          Container(width: padding), // Empty cell to align with the checkerboard
+          for (var i = 0; i < 8; i++)
+            Container(
+                width: padding - 4,
+                height: padding,
+                child: Text(
+                  String.fromCharCode('a'.codeUnitAt(0) + i),
+                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                )),
+        ]),
+        Expanded(
+            child: Row(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          Column(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+            for (var i = 0; i < 8; i++)
+              Container(
+                  width: padding,
                   height: padding,
-                  // alignment: Alignment.center,
+                  alignment: Alignment.center,
                   child: Text(
-                    String.fromCharCode('a'.codeUnitAt(0) + i),
+                    (8 - i).toString(),
                     style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                  ),
-                ),
-            ],
-          ),
-          Expanded(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    for (var i = 0; i < 8; i++)
-                      Container(
-                        width: padding,
-                        height: padding,
-                        alignment: Alignment.center,
-                        child: Text(
-                          (8 - i).toString(),
-                          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                  ],
-                ),
-                SizedBox(
-                    width: gridSize - padding,
-                    height: gridSize - padding,
-                    child: GridView.builder(
-                        itemCount: 8 * 8,
-                        physics: const NeverScrollableScrollPhysics(),
-                        gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 8),
-                        itemBuilder: (context, index) {
-                          int row = index ~/ 8;
-                          int col = index % 8;
+                  )),
+          ]),
+          SizedBox(
+              width: gridSize - padding,
+              height: gridSize - padding,
+              child: GridView.builder(
+                  itemCount: 8 * 8,
+                  physics: const NeverScrollableScrollPhysics(),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 8),
+                  itemBuilder: (context, index) {
+                    int row = index ~/ 8;
+                    int col = index % 8;
 
-                          bool isSelected = false;
-                          bool ableToAct =
-                              state.myColor == (isWhiteTurn == true ? 'white' : 'black') &&
-                                  state.waitingPlayer == false;
+                    bool isSelected = false;
+                    bool ableToAct = state.myColor == (isWhiteTurn == true ? 'white' : 'black') &&
+                        state.waitingPlayer == false;
 
-                          if (pieceState.clickedSquare.isNotEmpty) {
-                            isSelected = pieceState.clickedSquare[0] == row &&
-                                pieceState.clickedSquare[1] == col;
-                          }
+                    if (pieceState.clickedSquare.isNotEmpty) {
+                      isSelected =
+                          pieceState.clickedSquare[0] == row && pieceState.clickedSquare[1] == col;
+                    }
 
-                          bool isValidMove = false;
-                          for (var position in validMoves) {
-                            if (position[0] == row && position[1] == col) {
-                              isValidMove = true;
-                            }
-                          }
+                    bool isValidMove = false;
+                    for (var position in validMoves) {
+                      if (position[0] == row && position[1] == col) {
+                        isValidMove = true;
+                      }
+                    }
 
-                          return Square(
-                            isWhite: isWhite(index),
-                            piece: board[row][col],
-                            isSelected: isSelected,
-                            isValidMove: isValidMove,
-                            onTap: () => ableToAct ? pieceSelected(row, col) : null,
-                          );
-                        })),
-              ],
-            ),
-          ),
-        ],
-      ),
+                    return Square(
+                      isWhite: isWhite(index),
+                      piece: board[row][col],
+                      isSelected: isSelected,
+                      isValidMove: isValidMove,
+                      onTap: () => ableToAct ? pieceSelected(row, col) : null,
+                    );
+                  })),
+        ])),
+      ]),
     );
+  }
+
+  Widget buildHistory(BuildContext context, GameState state) {
+    List<List<String>> rounds = state.moveHistory.fold<List<List<String>>>([], (result, move) {
+      if (result.isEmpty || result.last.length == 2) {
+        result.add([move]);
+      } else {
+        result.last.add(move);
+      }
+      return result;
+    });
+    return FilledButton(
+        onPressed: () => showDialog(
+              context: context,
+              builder: (context) => AlertDialog(
+                title: const Text("History"),
+                content: Container(
+                    padding: const EdgeInsets.all(10),
+                    height: 300,
+                    color: Colors.grey,
+                    child: SizedBox(
+                        child: ListView.builder(
+                            itemCount: rounds.length,
+                            itemBuilder: (context, roundIndex) {
+                              List<String> roundMoves = rounds[roundIndex];
+
+                              return Row(
+                                children: [
+                                  Text('Round ${roundIndex + 1}: '),
+                                  roundMoves.length > 1
+                                      ? Row(children: [
+                                          Text(roundMoves[0],
+                                              style: const TextStyle(color: Colors.white)),
+                                          const Text(" , "),
+                                          Text(roundMoves[1],
+                                              style: const TextStyle(color: Colors.black)),
+                                        ])
+                                      : Text(roundMoves[0],
+                                          style: const TextStyle(color: Colors.white))
+                                ],
+                              );
+                            }))),
+              ),
+            ),
+        child: const Text("MOVES HISTORY"));
   }
 }

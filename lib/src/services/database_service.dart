@@ -10,16 +10,6 @@ Database db = Database();
 
 enum DbGameState { INGAME, WAITING, GAMEOVER }
 
-// Map<String, dynamic> convertChessPiecesToJson(List<List<ChessPiece?>> pieces){
-//   List<List<String>> map = [];
-//
-//   for (final entry in pieces) {
-//     map.add(entry.to)
-//   }
-//
-//   return map;
-// }
-
 class Database {
   final SupabaseClient client = Supabase.instance.client;
 
@@ -30,7 +20,6 @@ class Database {
 
   get table => client.from('GAMEROOMS');
 
-  // TODO: REFACTOR
   Future<String> createOrJoinGame() async {
     String? myColor = await joinRoom();
     if (myColor != null) return myColor;
@@ -69,6 +58,7 @@ class Database {
         return availableColor;
       }
     }
+    return null;
   }
 
   Future<void> update(Map<String, dynamic> payload) async {
